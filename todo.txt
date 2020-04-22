@@ -1,0 +1,17 @@
+Todo: 
+
+
+Estimate the markups - Antione
+-- What technique are we using? 
+-- How do we do it in Stata?
+-- What information is included in the markup?
+
+Calculate the 4 metrics -- Cristina 
+--- How to get cash flow from a balance sheet? 
+--- Add the categories
+
+Find and calcuate other properties to control for -- Adam
+-- Productivity
+-- Firm size
+-- Market competition
+-- Exporter
