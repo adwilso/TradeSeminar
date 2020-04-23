@@ -1,5 +1,5 @@
 set mem 2000m
-use "D:\Home\Downloads\TITG2020\zr2006_2018_EF_Stata11\zr2006_2018_EF_Stata11.dta"
+use "zr2006_2018_EF_Stata11.dta"
 //Only include the industries of interest
 drop if ind2 <= 60
 drop if ind2 >= 64
