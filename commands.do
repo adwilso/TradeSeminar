@@ -23,7 +23,7 @@ gen Payroll = aop139
  gen Service = aop134
 
 //Calculate Markup 
-replace Markup = ( SalesRevenue + InventoryVariation ) / ( Payroll + MaterialCost + Service )
+gen Markup = ( SalesRevenue + InventoryVariation ) / ( Payroll + MaterialCost + Service )
 
 
 /*
