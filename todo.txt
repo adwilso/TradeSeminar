@@ -7,11 +7,23 @@ Estimate the markups - Antione
 -- What information is included in the markup?
 
 Calculate the 4 metrics -- Cristina 
---- How to get cash flow from a balance sheet? 
---- Add the categories
+-- How to get cash flow from a balance sheet? 
+-- Add the categories
+
+-- Cash Control: Cash Flow ratio 
+-----(Net operating cash / current liabilities) 
+
+-- Operational Risk: Critical needs cash ratio 
+---- (Net operating cash flow + Interest Paid / Total Current Liabilities + Interest )
+
+-- Profitability:  Operating Margin 
+-- Efficiency: Assets turnover 
+---- (Gross Revenue/Assets)
+
+
 
 Find and calcuate other properties to control for -- Adam
--- Productivity
--- Firm size
+-- Productivity 
+-- Firm size  ✔
 -- Market competition
--- Exporter
+-- Exporter ✔

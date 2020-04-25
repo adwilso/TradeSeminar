@@ -4,6 +4,7 @@ use "zr2006_2018_EF_Stata11.dta"
 drop if ind2 <= 60
 drop if ind2 >= 64
 
+xtset id year
 /*
 * Calcuating the markup
 */
@@ -59,6 +60,7 @@ gen log_sales = log(aop110)
 //gen log_labour = log(Payroll + Service)
 //gen log_capital = log()
 
+xtreg markup AssetTurnover OperatingMargin exporter log_sales, fe
 
 //Helpful other commands 
 //inspect <variable name> 
