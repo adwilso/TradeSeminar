@@ -60,7 +60,7 @@ gen log_sales = log(aop110)
 //gen log_labour = log(Payroll + Service)
 //gen log_capital = log()
 
-xtreg markup AssetTurnover OperatingMargin exporter log_sales, fe
+xtreg Markup AssetTurnover OperatingMargin exporter log_sales, fe
 
 //Helpful other commands 
 //inspect <variable name> 
