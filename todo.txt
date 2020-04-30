@@ -14,7 +14,7 @@ Calculate the 4 metrics -- Cristina
 -----(Net operating cash / current liabilities) 
 
 -- Operational Risk: Critical needs cash ratio 
----- (Net operating cash flow + Interest Paid / Total Current Liabilities + Interest )
+---- (Net operating cash flow   + Interest Paid / Total Current Liabilities + Interest )
 
 -- Profitability:  Operating Margin 
 -- Efficiency: Assets turnover 
