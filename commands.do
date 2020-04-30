@@ -37,6 +37,24 @@ gen OperatingMargin = OperatingRevenue / aop110
 //Cacluate efficiency 
 gen AssetTurnover = aop110 / aop001
 
+//Calculate Cash Flow 
+gen NTotalProft = aop182
+gen OTotalLoss = aop183
+gen ProfitsMinusLoss = aop182 - aop183
+gen OperatingExpenses = aop127
+gen WriteOffs = aop144
+gen FianacialRevenue = aop153
+gen LongTermReceivables = aop027 + aop029
+gen ShortTermReceivables = aop048 +aop050
+gen ChangesInInvestment =  aop040 + aop042 
+gen GainLossSalesAssets = aop010 + aop018 + aop020
+gen DeferedTaxAssets = aop031 + aop033
+gen OperatingReceivables = aop163
+gen ShortTermDeferredRevenue = aop053 + aop055
+gen DeferredCosts = aop003
+gen ChangesInInventories = aop121 - aop122
+gen GainLossSale = aop010
+gen CashFlow = ProfitsMinusLoss + OperatingExpenses + FianacialRevenue + LongTermReceivables + ShortTermReceivables + ChangesInInvestment + GainLossSalesAssets + DeferedTaxAssets + OperatingReceivables + ShortTermDeferredRevenue + DeferredCosts + ChangesInInventories + GainLossSale - WriteOffs
 
 /*
  * Calcuate the metrics to control with that are known to impact markups
