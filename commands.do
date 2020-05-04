@@ -55,6 +55,11 @@ gen DeferredCosts = aop003
 gen ChangesInInventories = aop121 - aop122
 gen GainLossSale = aop010
 gen CashFlow = ProfitsMinusLoss + OperatingExpenses + FianacialRevenue + LongTermReceivables + ShortTermReceivables + ChangesInInvestment + GainLossSalesAssets + DeferedTaxAssets + OperatingReceivables + ShortTermDeferredRevenue + DeferredCosts + ChangesInInventories + GainLossSale - WriteOffs
+gen CashFlowRatio = CashFlow / (aop085 + aop086)
+gen CriticalCash = (CashFlow + aop155) / (aop169 + aop085 + aop086)
+//Trying to find what is with the 0 expenses companies
+ gen RetainedEarnings = aop056 + aop058
+ gen Dividends = L.RetainedEarnings - RetainedEarnings + ProfitsMinusLoss
 
 /*
  * Calcuate the metrics to control with that are known to impact markups
@@ -78,7 +83,7 @@ gen log_sales = log(aop110)
 //gen log_labour = log(Payroll + Service)
 //gen log_capital = log()
 
-xtreg Markup AssetTurnover OperatingMargin exporter log_sales L.Markup , fe
+ xtreg Markup AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.Markup , fe
 
 //Helpful other commands 
 //inspect <variable name> 

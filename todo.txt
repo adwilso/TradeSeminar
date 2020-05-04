@@ -1,14 +1,15 @@
 Todo: 
 
+- Control for inflation
+- See if you can figure out markup
+- See if you can figure out businesses that are paying out a bunch of dividends
+
 
 Estimate the markups - Antione
 -- What technique are we using? 
 -- How do we do it in Stata?
 -- What information is included in the markup?
 
-Calculate the 4 metrics -- Cristina 
--- How to get cash flow from a balance sheet? 
--- Add the categories
 
 -- Cash Control: Cash Flow ratio 
 -----(Net operating cash / current liabilities) 
@@ -19,6 +20,9 @@ Calculate the 4 metrics -- Cristina
 -- Profitability:  Operating Margin 
 -- Efficiency: Assets turnover 
 ---- (Gross Revenue/Assets)
+
+
+productivity, output price, output elasiticity, 
 
 
 
