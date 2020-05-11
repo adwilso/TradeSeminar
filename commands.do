@@ -85,6 +85,37 @@ gen log_sales = log(aop110)
 
  xtreg Markup AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.Markup , fe
 
+//aop001 == Capital (All assets), aop128 == COGS
+//
+xi: reg SalesRevenue Payroll aop001 aop128 i.year
+gen blols = _b[Payroll]
+gen bkols = _b[aop001]
+gen bmols = _b[aop128]
+xi: reg SalesRevenue e*(Payroll* aop128* aop001*) i.year
+
+predict phi
+predict epsilon, res
+gen phi_lag=L.phi
+gen exp_lag=L.exporter
+gen l_lag=L.Payroll
+gen k_lag=L.aop001
+gen l_lag2=l_lag^2
+gen k_lag2=k_lag^2
+gen l_lagk_lag=l_lag*k_lag
+gen lk=Payroll * aop001
+gen l_lagk=l_lag* aop001
+//Get rid of the non-functioning companies
+drop if l_lag==.
+//bmols == material demand elasticity, aop128 == COGS
+gen TempMark = bmols * SalesRevenue  / aop128
+
+//Find the values, and show that fixed effects is the right choice
+xtreg TempMark AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.Markup , fe
+estimates store fixed
+xtreg TempMark AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.TempMark, re
+estimates store random
+hausman fixed random 
+
 //Helpful other commands 
 //inspect <variable name> 
 //summarize <variable name> 
