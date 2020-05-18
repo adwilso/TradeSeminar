@@ -72,6 +72,9 @@ replace exporter = 1 if aop115 > 0 | aop118 > 0
 // lot of fixed assets (not needed in IT). Should correlate directly with other, unobserved metrics,
 // such as number of employees and market value.
 gen log_sales = log(aop110)
+gen log_payroll = log(Payroll)
+gen log_capital = log(aop001)
+gen log_materials = log(aop128)
 
 //Calculating the log(TFP) using Y = A * L^alpha * K^(1 - alpha)
 // thus log(TFP) = a = y - alpha * l - k * (1 - alpha)
@@ -80,39 +83,59 @@ gen log_sales = log(aop110)
 // K = capital spend (assets + materials)
 // Try to avoid using this in the same regression as the markup calculated the old way. It includes 
 //  a lot of the same information and you'll get a biased result
-//gen log_labour = log(Payroll + Service)
-//gen log_capital = log()
 
  xtreg Markup AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.Markup , fe
 
 //aop001 == Capital (All assets), aop128 == COGS
 //
-xi: reg SalesRevenue Payroll aop001 aop128 i.year
-gen blols = _b[Payroll]
-gen bkols = _b[aop001]
-gen bmols = _b[aop128]
-xi: reg SalesRevenue e*(Payroll* aop128* aop001*) i.year
 
+gen log_materials2 = log_materials^2
+gen log_payroll2 = log_payroll^2
+gen log_capital2 = log_capital^2
+gen log_labourMaterials = log_payroll * log_materials
+gen log_labourCapital = log_capital * log_payroll
+gen log_capitalMaterials = log_capital * log_materials
+gen log_labourCapitalMaterials = log_payroll * log_capital * log_materials
+
+xi: reg log_sales log_payroll log_capital log_materials log_materials2 log_payroll2 log_capital2 log_labourMaterials log_labourCapital log_capitalMaterials log_labourCapitalMaterials i.year
+gen blols = _b[log_payroll]
+gen bkols = _b[log_capital]
+gen bmols = _b[log_materials]
+gen bmmols = _b[log_materials2]
+gen blmols = _b[log_labourMaterials]
+gen bkmols = _b[log_capitalMaterials]
+gen blkmols = _b[log_labourCapitalMaterials]
+
+
+//Unused code, trying to replicate DeLoecker's other methods for estimating 
+//markup. Unsuccessful
+xi: reg SalesRevenue e*(log_payroll* log_capital* log_materials*) i.year
 predict phi
 predict epsilon, res
 gen phi_lag=L.phi
 gen exp_lag=L.exporter
-gen l_lag=L.Payroll
-gen k_lag=L.aop001
+gen l_lag=L.log_payroll
+gen k_lag=L.log_capital
 gen l_lag2=l_lag^2
 gen k_lag2=k_lag^2
 gen l_lagk_lag=l_lag*k_lag
-gen lk=Payroll * aop001
-gen l_lagk=l_lag* aop001
+gen lk= log_payroll * log_capital
+gen l_lagk=l_lag* log_capital
 //Get rid of the non-functioning companies
 drop if l_lag==.
 //bmols == material demand elasticity, aop128 == COGS
-gen TempMark = bmols * SalesRevenue  / aop128
+gen TempMark = bmols * log_sales  / log_materials
+gen theta = bmols + (2* bmmols * log_materials) + (bkmols * log_capital) + (blkmols * log_payroll * log_capital)
+gen TempMark2 = theta * log_sales / log_materials
+
+
+//Sort by firm id and year before doing the information 
+
 
 //Find the values, and show that fixed effects is the right choice
-xtreg TempMark AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.Markup , fe
+xtreg TempMark2 AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.TempMark L2.TempMark  , fe
 estimates store fixed
-xtreg TempMark AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.TempMark, re
+xtreg TempMark2 AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.TempMark L2.TempMark , re
 estimates store random
 hausman fixed random 
 
