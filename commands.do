@@ -24,7 +24,7 @@ gen Payroll = aop139
  gen Service = aop134
 
 //Calculate Markup 
-gen Markup = ( SalesRevenue + InventoryVariation ) / ( Payroll + MaterialCost + Service )
+gen MarkupHall = ( SalesRevenue + InventoryVariation ) / ( Payroll + MaterialCost + Service )
 
 
 /*
@@ -84,7 +84,7 @@ gen log_materials = log(aop128)
 // Try to avoid using this in the same regression as the markup calculated the old way. It includes 
 //  a lot of the same information and you'll get a biased result
 
- xtreg Markup AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.Markup , fe
+ xtreg MarkupHall AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupHall , fe
 
 //aop001 == Capital (All assets), aop128 == COGS
 //
@@ -126,16 +126,16 @@ drop if l_lag==.
 //bmols == material demand elasticity, aop128 == COGS
 gen TempMark = bmols * log_sales  / log_materials
 gen theta = bmols + (2* bmmols * log_materials) + (bkmols * log_capital) + (blkmols * log_payroll * log_capital)
-gen TempMark2 = theta * log_sales / log_materials
+gen MarkupDamijan = theta * log_sales / log_materials
 
 
 //Sort by firm id and year before doing the information 
 
 
 //Find the values, and show that fixed effects is the right choice
-xtreg TempMark2 AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.TempMark L2.TempMark  , fe
+xtreg MarkupDamijan AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan, fe
 estimates store fixed
-xtreg TempMark2 AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.TempMark L2.TempMark , re
+xtreg MarkupDamijan AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan, re
 estimates store random
 hausman fixed random 
 
