@@ -53,13 +53,13 @@ gen CriticalCash = (CashFlow + aop155) / (aop169 + aop085 + aop086)
 //Get rid of the non-functioning companies
 drop if Payroll==.
 drop if aop188 == 0
+drop if aop110 == 0
 
  
 //Find exporter status, this is known to impact the markup. Will control for it in regression
 gen exporter = 0
 // 115 = EU revenue, 118 outside EU revenue 
 replace exporter = 1 if aop115 > 0 | aop118 > 0
-
 //Using log(sales) as a proxy for size. Not using assets because some of these firms don't have a 
 // lot of fixed assets (not needed in IT). Should correlate directly with other, unobserved metrics,
 // such as number of employees and market value.
@@ -117,17 +117,35 @@ hausman fixed random
 //ivstyle is strictly exogenous variables (firm size and year) 
 //gmmstyle is for endogenous or partially endogenous variables
 //Used AR(1) process - the output will show this was a valid choice
-xtabond2 MarkupDamijan AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan, ivstyle(log_sales i.year) gmmstyle( AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan)
-eststo dynamicDam
+xtabond2 MarkupDamijan AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan, ivstyle(log_sales i.year) gmmstyle( AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter L.MarkupDamijan)
+//Suggestion from presentation feedback - move log_sales to ivstyle 
+//xtabond2 MarkupDamijan AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan, ivstyle(i.year) gmmstyle( log_sales AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter L.MarkupDamijan)
+eststo dynamicDamFull
 
-xtabond2 MarkupHall AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupHall, ivstyle(log_sales i.year) gmmstyle( AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupHall)
+xtabond2 MarkupHall AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupHall, ivstyle(log_sales i.year) gmmstyle( AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter L.MarkupHall)
 eststo dynamicHall
 //Get that output 
-esttab dynamicHall dynamicDam
-
+esttab dynamicHall dynamicDamFull
 
 //Trimmed graphs so that it is easier to see the distribution without outliers 
 histogram CashFlowRatio if CashFlowRatio <100 & CashFlowRatio > -100, ytitle(Density) xtitle(Cash Flow Ratio) title(Cash Flow Ratio Distribution)
 histogram CriticalCash if CriticalCash <100 & CriticalCash > -100, ytitle(Density) xtitle(Critical Cash Ratio) title(Critical Cash Ratio Distribution)
 histogram OperatingMargin if OperatingMargin <1 & OperatingMargin > -1, ytitle(Density) xtitle(Operating Margin) title(Operating Margin Distribution)
 histogram AssetTurnover if AssetTurnover <100 & AssetTurnover > -100, ytitle(Density) xtitle(AssetTurnover) title(Asset Turnover Distribution) 
+
+//This section was added after the presentation - was from the feedback to add the metrics one at a time
+// to see what the behaviour of the coefficient estimates are 
+// Note: These move log_sales to ivstyle per feedback, thus will not match the powerpoint slides
+xtabond2 MarkupDamijan CriticalCash exporter log_sales L.MarkupDamijan, ivstyle( i.year) gmmstyle(CriticalCash exporter L.MarkupDamijan log_sales)
+eststo dynamicDamCCR
+
+xtabond2 MarkupDamijan CriticalCash AssetTurnover exporter log_sales L.MarkupDamijan, ivstyle(i.year) gmmstyle(CriticalCash AssetTurnover exporter L.MarkupDamijan log_sales)
+eststo dynamicDamCCR_AT
+
+xtabond2 MarkupDamijan CriticalCash AssetTurnover CashFlowRatio exporter log_sales L.MarkupDamijan, ivstyle(i.year) gmmstyle(CriticalCash AssetTurnover CashFlowRatio exporter L.MarkupDamijan log_sales)
+eststo dynamicDamCCR_AT_CF
+
+xtabond2 MarkupDamijan CriticalCash AssetTurnover CashFlowRatio OperatingMargin exporter log_sales L.MarkupDamijan, ivstyle(i.year) gmmstyle(CriticalCash AssetTurnover CashFlowRatio OperatingMargin exporter L.MarkupDamijan log_sales)
+eststo dynamicDamCCR_AT_CF_OM
+
+esttab dynamicDamCCR dynamicDamCCR_AT dynamicDamCCR_AT_CF dynamicDamCCR_AT_CF_OM dynamicDamFull
