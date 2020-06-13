@@ -1,4 +1,5 @@
 set mem 2000m
+cd  D:\Home\Downloads\TITG2020\zr2006_2018_EF_Stata11
 use "zr2006_2018_EF_Stata11.dta"
 //Only include the industries of interest
 drop if ind2 <= 60
@@ -47,8 +48,8 @@ gen CashFlowRatio = CashFlow / (aop085 + aop086)
 gen CriticalCash = (CashFlow + aop155) / (aop169 + aop085 + aop086)
 //Still have companies with 0 expenses - this confirms that they seem to be still paying dividends
 //Ended up dropping these companies from the dataset later
- gen RetainedEarnings = aop056 + aop058
- gen Dividends = L.RetainedEarnings - RetainedEarnings + ProfitsMinusLoss
+gen RetainedEarnings = aop056 + aop058
+gen Dividends = L.RetainedEarnings - RetainedEarnings + ProfitsMinusLoss
 
 //Get rid of the non-functioning companies
 drop if Payroll==.
@@ -79,9 +80,22 @@ gen log_labourCapital = log_capital * log_payroll
 gen log_capitalMaterials = log_capital * log_materials
 gen log_labourCapitalMaterials = log_payroll * log_capital * log_materials
 
+xi: reg SalesRevenue e*(log_payroll* log_capital* log_materials*) i.year
+predict phi
+predict epsilon, res
+gen phi_lag=L.phi
+gen exp_lag=L.exporter
+gen l_lag=L.log_payroll
+gen k_lag=L.log_capital
+gen l_lag2=l_lag^2
+gen k_lag2=k_lag^2
+gen l_lagk_lag=l_lag*k_lag
+gen lk= log_payroll * log_capital
+gen l_lagk=l_lag* log_capital
+
 xi: reg log_sales log_payroll log_capital log_materials log_materials2 log_payroll2 log_capital2 log_labourMaterials log_labourCapital log_capitalMaterials log_labourCapitalMaterials i.year
 gen blols = _b[log_payroll]
-gen bkols = _b[log_capital]
+gen bkols = _b[log_capital] 
 gen bmols = _b[log_materials]
 gen bmmols = _b[log_materials2]
 gen blmols = _b[log_labourMaterials]
@@ -89,8 +103,12 @@ gen bkmols = _b[log_capitalMaterials]
 gen blkmols = _b[log_labourCapitalMaterials]
 
 
+
+
 //bmols == material demand elasticity, aop128 == COGS
 gen theta = bmols + (2* bmmols * log_materials) + (bkmols * log_capital) + (blkmols * log_payroll * log_capital)
+//Need to correct for productivity shocks (divide total output by e^epsilon. Epsilon calculated when estimating phi)
+//Also, 90% sure you flipped this. Should be log_materials over log_sales
 gen MarkupDamijan = theta * log_sales / log_materials
 
 //Trim outliers - these are companies that we missed in the clean up earlier
