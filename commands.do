@@ -61,6 +61,7 @@ drop if aop110 == 0
 gen exporter = 0
 // 115 = EU revenue, 118 outside EU revenue 
 replace exporter = 1 if aop115 > 0 | aop118 > 0
+
 //Using log(sales) as a proxy for size. Not using assets because some of these firms don't have a 
 // lot of fixed assets (not needed in IT). Should correlate directly with other, unobserved metrics,
 // such as number of employees and market value.
@@ -69,9 +70,20 @@ gen log_payroll = log(Payroll)
 gen log_capital = log(aop001)
 gen log_materials = log(aop128)
 
+//Figure out if companies are exiting or entering the market
+gen ExportEntry = 0
+replace ExportEntry = 1 if L.exporter == 0 & exporter == 1
+gen ExportExit = 0
+replace ExportExit = 1 if L.exporter == 1 & exporter == 0
 
+gen Entry = 0
+replace Entry = 1 if L.log_sales == . & log_sales != .
+gen Exit = 0 
+replace Exit = 1 if log_sales != . & F.log_sales == .
 
 //aop001 == Capital (All assets), aop128 == COGS
+//We are only going to second order here - in DeLocker they go to the third
+// can come back and fix this if we find the estimates are way off
 gen log_materials2 = log_materials^2
 gen log_payroll2 = log_payroll^2
 gen log_capital2 = log_capital^2
@@ -80,7 +92,8 @@ gen log_labourCapital = log_capital * log_payroll
 gen log_capitalMaterials = log_capital * log_materials
 gen log_labourCapitalMaterials = log_payroll * log_capital * log_materials
 
-xi: reg SalesRevenue e*(log_payroll* log_capital* log_materials*) i.year
+
+xi: reg SalesRevenue exporter(log_payroll* log_capital* log_materials*) i.year
 predict phi
 predict epsilon, res
 gen phi_lag=L.phi
