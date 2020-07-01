@@ -1,9 +1,10 @@
 set mem 2000m
 cd  D:\Home\Downloads\TITG2020\zr2006_2018_EF_Stata11
 use "zr2006_2018_EF_Stata11.dta"
+
 //Only include the industries of interest
-drop if ind2 <= 60
-drop if ind2 >= 64
+//drop if ind2 <= 60
+//drop if ind2 >= 64
 
 xtset id year, y
 
@@ -126,7 +127,7 @@ gen klm = k * l * m
 
 
 
-xi: reg log_sales expoter#(log_payroll* log_capital* log_materials*) i.year
+xi: reg log_sales exporter##c.k*  exporter##c.m* exporter##c.log_payroll* i.year
 predict phi
 predict epsilon, res
 gen phi_lag=L.phi
@@ -139,6 +140,8 @@ gen l_lagk_lag=l_lag*k_lag
 gen lk= log_payroll * log_capital
 gen l_lagk=l_lag* log_capital
 
+//New version maybe for all different firms
+//xtreg log_sales i.ind2##(c.log_payroll c.log_capital c.log_materials c.log_materials2 c.log_payroll2 c.log_capital2 c.log_labourMaterials c.log_labourCapital c.log_capitalMaterials c.log_labourCapitalMaterials) i.year
 xi: reg log_sales log_payroll log_capital log_materials log_materials2 log_payroll2 log_capital2 log_labourMaterials log_labourCapital log_capitalMaterials log_labourCapitalMaterials i.year
 gen blols = _b[log_payroll]
 gen bkols = _b[log_capital] 
@@ -153,7 +156,7 @@ gen blkmols = _b[log_labourCapitalMaterials]
 
 //bmols == material demand elasticity, aop128 == materials cost 
 gen alpha = aop128 / exp(log_sales - epsilon)
-gen theta = bmols + (2* bmmols * log_materials) + (bkmols * log_capital) + (blkmols * log_payroll * log_capital)
+gen theta = bmols + (2* bmmols * log_materials) + (bkmols * log_capital) + (blmols * log_payroll) + (blkmols * log_payroll * log_capital)
 gen MarkupDamijan = theta / alpha 
 
 //Trim outliers - these are companies that we missed in the clean up earlier
