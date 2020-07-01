@@ -71,15 +71,15 @@ gen log_capital = log(aop001)
 gen log_materials = log(aop128)
 
 //Figure out if companies are exiting or entering the market
-gen ExportEntry = 0
-replace ExportEntry = 1 if L.exporter == 0 & exporter == 1
-gen ExportExit = 0
-replace ExportExit = 1 if L.exporter == 1 & exporter == 0
+gen export_entry = 0
+replace export_entry = 1 if L.exporter == 0 & exporter == 1
+gen export_exit = 0
+replace export_exit = 1 if L.exporter == 1 & exporter == 0
 
-gen Entry = 0
-replace Entry = 1 if L.log_sales == . & log_sales != .
-gen Exit = 0 
-replace Exit = 1 if log_sales != . & F.log_sales == .
+gen entry = 0
+replace entry = 1 if L.log_sales == . & log_sales != .
+gen exit = 0 
+replace exit = 1 if log_sales != . & F.log_sales == .
 
 //aop001 == Capital (All assets), aop128 == COGS
 //We are only going to second order here - in DeLocker they go to the third
@@ -92,8 +92,41 @@ gen log_labourCapital = log_capital * log_payroll
 gen log_capitalMaterials = log_capital * log_materials
 gen log_labourCapitalMaterials = log_payroll * log_capital * log_materials
 
+//Generating Shortnames for the interaction terms 
+// Todo: fix this to proper names in the final version, but for now the debug output is hard to 
+//       read if they are full names
 
-xi: reg SalesRevenue exporter(log_payroll* log_capital* log_materials*) i.year
+gen k = log_capital
+gen l = log_payroll
+gen m = log_materials //and services
+
+//Second order
+gen m2 = log_materials2 
+gen l2 = log_payroll2
+gen k2 = log_capital2
+gen kl = k * l
+gen km = k * m 
+gen ml = l * m 
+
+//third order
+
+gen k3 = k^3
+gen l3 = l^3
+gen m3 = m^3
+
+gen k2l = k * k * l 
+gen k2m = k * k * m 
+gen kl2 = k * l * l
+gen km2 = k * m * m
+gen m2l = m * m * l 
+gen ml2 = m * l * l
+gen klm = k * l * m 
+
+//todo: fourth order if this works
+
+
+
+xi: reg log_sales expoter#(log_payroll* log_capital* log_materials*) i.year
 predict phi
 predict epsilon, res
 gen phi_lag=L.phi
@@ -118,11 +151,10 @@ gen blkmols = _b[log_labourCapitalMaterials]
 
 
 
-//bmols == material demand elasticity, aop128 == COGS
+//bmols == material demand elasticity, aop128 == materials cost 
+gen alpha = aop128 / exp(log_sales - epsilon)
 gen theta = bmols + (2* bmmols * log_materials) + (bkmols * log_capital) + (blkmols * log_payroll * log_capital)
-//Need to correct for productivity shocks (divide total output by e^epsilon. Epsilon calculated when estimating phi)
-//Also, 90% sure you flipped this. Should be log_materials over log_sales
-gen MarkupDamijan = theta * log_sales / log_materials
+gen MarkupDamijan = theta / alpha 
 
 //Trim outliers - these are companies that we missed in the clean up earlier
 drop if MarkupDamijan > 100 
@@ -148,6 +180,7 @@ hausman fixed random
 //ivstyle is strictly exogenous variables (firm size and year) 
 //gmmstyle is for endogenous or partially endogenous variables
 //Used AR(1) process - the output will show this was a valid choice
+// They used estimates in levels, not just first differences (think this is Blundel Bond - need to look that up )
 xtabond2 MarkupDamijan AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan, ivstyle(log_sales i.year) gmmstyle( AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter L.MarkupDamijan)
 //Suggestion from presentation feedback - move log_sales to ivstyle 
 //xtabond2 MarkupDamijan AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter log_sales L.MarkupDamijan, ivstyle(i.year) gmmstyle( log_sales AssetTurnover OperatingMargin CashFlowRatio CriticalCash exporter L.MarkupDamijan)
