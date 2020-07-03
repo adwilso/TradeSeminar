@@ -1,0 +1,25 @@
+Todo: 
+
+- Add a test option to do all the different industries
+- Fix the calculation of the elasticity? Think it should be calculated per firm
+
+- Control for  
+
+ - How do we estimate the business model? Are we losing out to people choosing to not make a margin? 
+    - Size of payroll
+    - Ratio of materials expense to revenue (carrying inventory) 
+
+
+-- We are using a gross output function because labour isn't flexibly choosen in Slovenia
+
+
+
+-- Cash Control: Cash Flow ratio 
+-----(Net operating cash / current liabilities) 
+
+-- Operational Risk: Critical needs cash ratio 
+---- (Net operating cash flow   + Interest Paid / Total Current Liabilities + Interest )
+
+-- Profitability:  Operating Margin 
+-- Efficiency: Assets turnover 
+---- (Gross Revenue/Assets)
