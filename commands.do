@@ -123,10 +123,16 @@ gen m2l = m * m * l
 gen ml2 = m * l * l
 gen klm = k * l * m 
 
+prodest log_sales, free(log_payroll) state(log_capital) proxy(log_materials) fsresidual(epsilon) met(lp) acf reps(50) id(id) t(year)
+
+gen labour_elasticity = _b[log_payroll]
+gen capital_elasticity = _b[log_capital]
+gen material_elasticity = _b[log_materials]
+
 //todo: fourth order if this works
 
 
-
+/*
 xi: reg log_sales exporter##c.k*  exporter##c.m* exporter##c.log_payroll* i.year
 predict phi
 predict epsilon, res
@@ -150,13 +156,13 @@ gen bmmols = _b[log_materials2]
 gen blmols = _b[log_labourMaterials]
 gen bkmols = _b[log_capitalMaterials]
 gen blkmols = _b[log_labourCapitalMaterials]
-
+*/
 
 
 
 //bmols == material demand elasticity, aop128 == materials cost 
 gen alpha = aop128 / exp(log_sales - epsilon)
-gen theta = bmols + (2* bmmols * log_materials) + (bkmols * log_capital) + (blmols * log_payroll) + (blkmols * log_payroll * log_capital)
+gen theta = material_elasticity
 gen MarkupDamijan = theta / alpha 
 
 //Trim outliers - these are companies that we missed in the clean up earlier
