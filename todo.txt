@@ -1,9 +1,14 @@
 Todo: 
+- Take the results from the production function estimation to calculate the markup correctly
 
-- Add a test option to do all the different industries
-- Fix the calculation of the elasticity? Think it should be calculated per firm
 
-- Control for  
+
+--- Using labour input, since a few of the computer firms are showing very low material consumption (mostly hosting firms),
+    thus they have weird results. But they need labour and services
+
+
+-- https://deepblue.lib.umich.edu/bitstream/handle/2027.42/116342/ecta1558.pdf?sequence=2
+----- page 18 says that we shouldn't use m in the calculations of the production function, or if we do we can't use ACF 
 
  - How do we estimate the business model? Are we losing out to people choosing to not make a margin? 
     - Size of payroll
