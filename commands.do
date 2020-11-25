@@ -124,9 +124,10 @@ gen ml2 = m * l * l
 gen klm = k * l * m 
 
 log using output.log
-foreach x in 25 41 43 45 46 47 49 56 62 68 69 70 71 72 73 74 75{
-	preserve
-	drop if ind2 != `x'
+
+
+keep if ind2 == 25 | ind2 == 41 | ind2 == 43 | ind2 == 45 | ind2 == 46 | ind2 == 47 | ind2 == 49 | ind2 == 56 | ind2 == 62 | ind2 == 68 | ind2 == 69 | ind2 == 70 | ind2 == 71
+
 
 	prodest log_sales, free(log_payroll) state(log_capital) proxy(log_materials) fsresidual(epsilon) met(lp) reps(50) id(id) t(year)
 
@@ -204,7 +205,13 @@ foreach x in 25 41 43 45 46 47 49 56 62 68 69 70 71 72 73 74 75{
 
 	esttab dynamicDamCCR dynamicDamCCR_AT dynamicDamCCR_AT_CF dynamicDamCCR_AT_CF_OM 
 	 restore  
-}
+
+	 
+tabstat CashFlowRatio, by(ind2) stat(mean p5 med p95 sd) long format
+tabstat CriticalCash, by(ind2) stat(mean p5 med p95 sd) long format
+tabstat AssetTurnover, by(ind2) stat(mean p5 med p95 sd) long format
+tabstat OperatingMargin, by(ind2) stat(mean p5 med p95 sd) long format
+	 
 log close
 
 //Have a nice day 
